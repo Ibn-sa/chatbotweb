@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Buddy - Chat Companion</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at top, #4f46e5 0, #020617 45%, #000 100%);
+      color: #e5e7eb;
+      padding: 20px;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 960px;
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 18px;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
+      padding: 24px 24px 28px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      backdrop-filter: blur(16px);
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px;
+    }
+
+    .brand {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      background: conic-gradient(from 160deg, #a855f7, #22c55e, #06b6d4, #6366f1, #a855f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo::after {
+      content: "B";
+      font-weight: 800;
+      color: #020617;
+      text-shadow: 0 0 8px rgba(15, 23, 42, 0.4);
+      font-size: 20px;
+    }
+
+    .brand-text h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .brand-text p {
+      font-size: 0.78rem;
+      color: #9ca3af;
+    }
+
+    .pill {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.12);
+      color: #a5f3fc;
+      border: 1px solid rgba(34, 211, 238, 0.35);
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.92);
+      border-radius: 16px;
+      padding: 18px 18px 20px;
+      border: 1px solid rgba(75, 85, 99, 0.7);
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .helper-text {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-bottom: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+      color: #d1d5db;
+    }
+
+    input {
+      width: 100%;
+      border-radius: 9px;
+      border: 1px solid rgba(55, 65, 81, 0.8);
+      background: rgba(15, 23, 42, 0.85);
+      padding: 7px 10px;
+      color: #e5e7eb;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+
+    input::placeholder {
+      color: #6b7280;
+    }
+
+    input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.5);
+      background: rgba(15, 23, 42, 0.98);
+    }
+
+    .primary-btn {
+      border-radius: 999px;
+      padding: 8px 16px;
+      border: none;
+      font-size: 0.84rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.15s, background 0.15s, color 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #4f46e5, #22c55e);
+      color: white;
+      box-shadow: 0 8px 24px rgba(22, 163, 74, 0.45);
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 30px rgba(22, 163, 74, 0.55);
+    }
+
+    .view-hidden {
+      display: none;
+    }
+
+    .chat-card {
+      display: flex;
+      flex-direction: column;
+      height: 420px;
+    }
+
+    .chat-header-text {
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: #e5e7eb;
+    }
+
+    .chat-window {
+      flex: 1;
+      border-radius: 12px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.3), rgba(15, 23, 42, 0.95));
+      padding: 10px 12px;
+      overflow-y: auto;
+      font-size: 0.85rem;
+    }
+
+    .message-row {
+      display: flex;
+      margin-bottom: 8px;
+    }
+
+    .message-row.user {
+      justify-content: flex-end;
+    }
+
+    .message-row.buddy {
+      justify-content: flex-start;
+    }
+
+    .bubble {
+      max-width: 80%;
+      padding: 8px 10px;
+      border-radius: 10px;
+      line-height: 1.35;
+    }
+
+    .bubble.user {
+      background: rgba(59, 130, 246, 0.9);
+      color: #e5e7eb;
+      border-bottom-right-radius: 2px;
+    }
+
+    .bubble.buddy {
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: #e5e7eb;
+      border-bottom-left-radius: 2px;
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chat-input-row input {
+      flex: 1;
+    }
+
+    .small-note {
+      font-size: 0.7rem;
+      color: #9ca3af;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 640px) {
+      .app-shell {
+        padding: 18px 14px 22px;
+      }
+
+      .chat-card {
+        height: 380px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <div class="brand">
+        <div class="logo"></div>
+        <div class="brand-text">
+          <h1>Buddy</h1>
+          <p>Your friendly chat buddy</p>
+        </div>
+      </div>
+      <div class="pill">Login · Chat with Buddy</div>
+    </header>
+
+    <main>
+      <!-- Login / signup view -->
+      <section id="auth-view" class="card">
+        <h2>Sign in to Buddy</h2>
+        <p class="helper-text">
+          Enter your name, email, and password. I'll remember you in this browser and then we can chat.
+        </p>
+
+        <form id="auth-form">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="Enter your name"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Create or enter password"
+              required
+            />
+          </div>
+
+          <button type="submit" class="primary-btn">Save &amp; Continue to Chat</button>
+          <p class="small-note">Accounts are stored only in this browser using localStorage (not on a server).</p>
+        </form>
+      </section>
+
+      <!-- Chat view -->
+      <section id="chat-view" class="card chat-card view-hidden">
+        <h2>Buddy chat</h2>
+        <p id="chat-subtitle" class="chat-header-text"></p>
+
+        <div id="chat-window" class="chat-window"></div>
+
+        <div class="chat-input-row">
+          <input
+            type="text"
+            id="chat-input"
+            placeholder="Type a message..."
+          />
+          <button id="send-btn" class="primary-btn" type="button">Send</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "buddy_user";
+
+    const authView = document.getElementById("auth-view");
+    const chatView = document.getElementById("chat-view");
+    const authForm = document.getElementById("auth-form");
+    const nameInput = document.getElementById("name");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+
+    const chatSubtitle = document.getElementById("chat-subtitle");
+    const chatWindow = document.getElementById("chat-window");
+    const chatInput = document.getElementById("chat-input");
+    const sendBtn = document.getElementById("send-btn");
+
+    function saveUserToStorage(user) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+    }
+
+    function getUserFromStorage() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
+
+    function showAuthView() {
+      authView.classList.remove("view-hidden");
+      chatView.classList.add("view-hidden");
+    }
+
+    function showChatView(user) {
+      authView.classList.add("view-hidden");
+      chatView.classList.remove("view-hidden");
+
+      chatSubtitle.textContent = `Hello ${user.name || "there"}, I am Buddy. How can I help you today?`;
+
+      chatWindow.innerHTML = "";
+      addBuddyMessage("Hello, I am Buddy. How can I help you?");
+      chatInput.focus();
+    }
+
+    function addMessage(text, from) {
+      const row = document.createElement("div");
+      row.className = `message-row ${from}`;
+
+      const bubble = document.createElement("div");
+      bubble.className = `bubble ${from}`;
+      bubble.textContent = text;
+
+      row.appendChild(bubble);
+      chatWindow.appendChild(row);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function addUserMessage(text) {
+      addMessage(text, "user");
+    }
+
+    function addBuddyMessage(text) {
+      addMessage(text, "buddy");
+    }
+
+    function buildBuddyReply(message, user) {
+      const text = message.toLowerCase();
+
+      if (!text.trim()) {
+        return "Please type something so I can help you.";
+      }
+
+      if (text.includes("hello") || text.includes("hi")) {
+        return `Hi ${user.name || "friend"}! I am Buddy. What would you like to talk about?`;
+      }
+
+      if (
+        text.includes("sad") ||
+        text.includes("down") ||
+        text.includes("depressed") ||
+        text.includes("cry")
+      ) {
+        return "I'm sorry you're feeling sad. It's okay to feel this way. Try talking to someone you trust, and remember I'm here to listen.";
+      }
+
+      if (
+        text.includes("angry") ||
+        text.includes("mad") ||
+        text.includes("frustrated")
+      ) {
+        return "Your feelings are valid. Maybe take a few deep breaths or a short break. Do you want to tell me what made you feel this way?";
+      }
+
+      if (
+        text.includes("stressed") ||
+        text.includes("anxious") ||
+        text.includes("nervous") ||
+        text.includes("worried")
+      ) {
+        return "That sounds stressful. Let's try one small step at a time. What is one thing we could focus on first?";
+      }
+
+      if (
+        text.includes("happy") ||
+        text.includes("good") ||
+        text.includes("excited") ||
+        text.includes("great")
+      ) {
+        return "I'm glad you're feeling good! Tell me more about what made you feel this way so we can celebrate it.";
+      }
+
+      if (text.includes("help") || text.includes("suggest")) {
+        return "Tell me a bit more about what you need help with (study, work, friends, etc.) and I'll try to give you a simple suggestion.";
+      }
+
+      return "Thank you for sharing that. I may be simple, but I'm here to listen. Can you explain a bit more, or tell me how this makes you feel?";
+    }
+
+    authForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const user = {
+        name: nameInput.value.trim(),
+        email: emailInput.value.trim(),
+        password: passwordInput.value.trim(),
+      };
+
+      saveUserToStorage(user);
+      showChatView(user);
+    });
+
+    function handleSend() {
+      const text = chatInput.value.trim();
+      if (!text) return;
+
+      const user = getUserFromStorage() || { name: "" };
+
+      addUserMessage(text);
+      chatInput.value = "";
+
+      const reply = buildBuddyReply(text, user);
+      setTimeout(() => addBuddyMessage(reply), 200);
+    }
+
+    sendBtn.addEventListener("click", handleSend);
+
+    chatInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        handleSend();
+      }
+    });
+
+    (function init() {
+      const user = getUserFromStorage();
+      if (user && user.name && user.email && user.password) {
+        showChatView(user);
+      } else {
+        showAuthView();
+      }
+    })();
+  </script>
+</body>
+</html>
